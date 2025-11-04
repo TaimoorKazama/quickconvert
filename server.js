@@ -1,89 +1,69 @@
 const express = require("express");
 const multer = require("multer");
+const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const mammoth = require("mammoth");
 const PDFDocument = require("pdfkit");
-const pdfParse = require("pdf-parse");
-const { Document, Packer, Paragraph, TextRun } = require("docx");
-const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.static("public"));
-app.use(express.json());
 
 const upload = multer({ dest: "uploads/" });
 
-// Home route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// ✅ DOCX → PDF
+// --- WORD (.docx) ➜ PDF ---
 app.post("/convert/docx-to-pdf", upload.single("file"), async (req, res) => {
   try {
-    const docxPath = req.file.path;
-    const { value: html } = await mammoth.convertToHtml({ path: docxPath });
-    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const filePath = req.file.path;
+    const outputPath = filePath + ".pdf";
 
-    const pdfPath = path.join("uploads", `${Date.now()}.pdf`);
-    const pdfDoc = new PDFDocument();
-    pdfDoc.pipe(fs.createWriteStream(pdfPath));
-    pdfDoc.font("Times-Roman").fontSize(12).text(text, { align: "left" });
-    pdfDoc.end();
+    const result = await mammoth.extractRawText({ path: filePath });
+    const pdf = new PDFDocument();
+    const writeStream = fs.createWriteStream(outputPath);
+    pdf.pipe(writeStream);
+    pdf.font("Times-Roman").fontSize(12).text(result.value, { align: "left" });
+    pdf.end();
 
-    pdfDoc.on("finish", () => {
-      res.download(pdfPath, "converted.pdf", (err) => {
-        fs.unlinkSync(docxPath);
-        fs.unlinkSync(pdfPath);
-        if (err) console.error("Download error:", err);
+    writeStream.on("finish", () => {
+      res.download(outputPath, "converted.pdf", () => {
+        fs.unlinkSync(filePath);
+        fs.unlinkSync(outputPath);
       });
     });
-  } catch (error) {
-    console.error("DOCX → PDF failed:", error);
-    res.status(500).send("DOCX → PDF conversion failed.");
+  } catch (err) {
+    console.error("Conversion error:", err);
+    res.status(500).send("Conversion failed");
   }
 });
 
-// ✅ PDF → DOCX
+// --- PDF ➜ Word (.docx) ---
 app.post("/convert/pdf-to-docx", upload.single("file"), async (req, res) => {
+  const pdfParse = require("pdf-parse");
   try {
-    const pdfPath = req.file.path;
-    const pdfBuffer = fs.readFileSync(pdfPath);
-    const pdfData = await pdfParse(pdfBuffer);
+    const filePath = req.file.path;
+    const dataBuffer = fs.readFileSync(filePath);
+    const pdfData = await pdfParse(dataBuffer);
 
-    const doc = new Document({
-      sections: [
-        {
-          properties: {},
-          children: pdfData.text.split("\n").map(
-            (line) =>
-              new Paragraph({
-                children: [new TextRun(line)],
-              })
-          ),
-        },
-      ],
+    const outputPath = filePath + ".docx";
+    const { Document, Packer, Paragraph } = require("docx");
+
+    const paragraphs = pdfData.text.split("\n").map(line => new Paragraph(line));
+    const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+
+    const buffer = await Packer.toBuffer(doc);
+    fs.writeFileSync(outputPath, buffer);
+
+    res.download(outputPath, "converted.docx", () => {
+      fs.unlinkSync(filePath);
+      fs.unlinkSync(outputPath);
     });
-
-    const docxBuffer = await Packer.toBuffer(doc);
-    const docxPath = path.join("uploads", `${Date.now()}.docx`);
-    fs.writeFileSync(docxPath, docxBuffer);
-
-    res.download(docxPath, "converted.docx", (err) => {
-      fs.unlinkSync(pdfPath);
-      fs.unlinkSync(docxPath);
-      if (err) console.error("Download error:", err);
-    });
-  } catch (error) {
-    console.error("PDF → DOCX failed:", error);
-    res.status(500).send("PDF → DOCX conversion failed.");
+  } catch (err) {
+    console.error("Conversion error:", err);
+    res.status(500).send("Conversion failed");
   }
 });
 
-app.listen(PORT, () =>
-  console.log(`✅ QuickConvert server running on port ${PORT}`)
-);
+app.listen(PORT, () => console.log(`✅ QuickConvert server running on port ${PORT}`));
