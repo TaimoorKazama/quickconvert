@@ -45,15 +45,23 @@ app.post("/convert/pdf-to-docx", upload.single("file"), async (req, res) => {
   try {
     const filePath = req.file.path;
     const dataBuffer = fs.readFileSync(filePath);
+
+    // Extract text content from PDF
     const pdfData = await pdfParse(dataBuffer);
 
-    const outputPath = filePath + ".docx";
+    // Prepare Word document
     const { Document, Packer, Paragraph } = require("docx");
+    const paragraphs = pdfData.text
+      .split(/\r?\n/)
+      .filter(line => line.trim() !== "")
+      .map(line => new Paragraph(line));
 
-    const paragraphs = pdfData.text.split("\n").map(line => new Paragraph(line));
-    const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
+    const doc = new Document({
+      sections: [{ properties: {}, children: paragraphs }],
+    });
 
     const buffer = await Packer.toBuffer(doc);
+    const outputPath = filePath + ".docx";
     fs.writeFileSync(outputPath, buffer);
 
     res.download(outputPath, "converted.docx", () => {
@@ -61,9 +69,10 @@ app.post("/convert/pdf-to-docx", upload.single("file"), async (req, res) => {
       fs.unlinkSync(outputPath);
     });
   } catch (err) {
-    console.error("Conversion error:", err);
-    res.status(500).send("Conversion failed");
+    console.error("PDF to Word conversion error:", err);
+    res.status(500).send("PDF to Word conversion failed");
   }
 });
+
 
 app.listen(PORT, () => console.log(`✅ QuickConvert server running on port ${PORT}`));
