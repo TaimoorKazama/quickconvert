@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="QuickConvert — Free online Word to PDF and PDF to Word converter. Instantly convert your files without signup or ads." />
-  <meta name="keywords" content="word to pdf, pdf to word, free online converter, docx to pdf, quickconvert" />
-  <meta name="author" content="QuickConvert" />
   <title>QuickConvert | Free Word ↔ PDF Converter</title>
 
   <style>
@@ -34,34 +32,6 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       max-width: 400px;
     }
-
-    .file-upload {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .upload-label {
-      background-color: #004aad;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-bottom: 8px;
-      transition: 0.3s;
-    }
-
-    .upload-label:hover {
-      background-color: #0070f3;
-    }
-
-    .file-name {
-      font-size: 14px;
-      color: #444;
-    }
-
     button {
       background-color: #004aad;
       border: none;
@@ -76,7 +46,24 @@
     button:hover {
       background-color: #0070f3;
     }
-
+    input[type="file"] {
+      display: none;
+    }
+    label {
+      background-color: #e6f0ff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #004aad;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    #fileName {
+      color: #333;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
     footer {
       margin-top: 50px;
       font-size: 0.9em;
@@ -90,9 +77,9 @@
 
   <div class="converter">
     <div class="file-upload">
-      <input type="file" id="fileInput" name="file" class="hidden" required />
+      <input type="file" id="fileInput" class="hidden" />
       <label for="fileInput" class="upload-label">Choose File</label>
-      <p id="fileName" class="file-name">No file chosen</p>
+      <p id="fileName">No file chosen</p>
     </div>
 
     <div>
@@ -109,19 +96,15 @@
 
   <script>
     const fileInput = document.getElementById("fileInput");
-    const fileNameEl = document.getElementById("fileName");
+    const fileName = document.getElementById("fileName");
     const statusEl = document.getElementById("status");
 
-    // ✅ Show selected file name
     fileInput.addEventListener("change", () => {
-      if (fileInput.files.length > 0) {
-        fileNameEl.textContent = fileInput.files[0].name;
-      } else {
-        fileNameEl.textContent = "No file chosen";
-      }
+      fileName.textContent = fileInput.files.length
+        ? fileInput.files[0].name
+        : "No file chosen";
     });
 
-    // ✅ Conversion buttons
     document.getElementById("toPdfBtn").addEventListener("click", () => handleConvert("docx-to-pdf"));
     document.getElementById("toWordBtn").addEventListener("click", () => handleConvert("pdf-to-docx"));
 
@@ -129,16 +112,6 @@
       const file = fileInput.files[0];
       if (!file) {
         alert("Please select a file first.");
-        return;
-      }
-
-      // Check file type to prevent wrong conversions
-      if (type === "docx-to-pdf" && !file.name.endsWith(".docx")) {
-        alert("Please upload a .docx file for Word → PDF.");
-        return;
-      }
-      if (type === "pdf-to-docx" && !file.name.endsWith(".pdf")) {
-        alert("Please upload a .pdf file for PDF → Word.");
         return;
       }
 
@@ -155,7 +128,6 @@
 
         if (!response.ok) throw new Error("Conversion failed");
 
-        // Create download link
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -164,11 +136,10 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
-
         statusEl.textContent = "✅ Conversion complete!";
       } catch (error) {
-        statusEl.textContent = "❌ Conversion failed. Try again.";
         console.error(error);
+        statusEl.textContent = "❌ Conversion failed. Try again.";
       }
     }
   </script>
