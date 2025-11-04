@@ -1,86 +1,53 @@
-// server.js
 import express from "express";
 import multer from "multer";
-import fetch from "node-fetch";
-import fs from "fs";
-import FormData from "form-data";
 import cors from "cors";
-import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import PDFDocument from "pdfkit";
+import mammoth from "mammoth";
 
-dotenv.config();
 const app = express();
+const PORT = process.env.PORT || 10000;
+
 app.use(cors());
 app.use(express.static("public"));
 
 const upload = multer({ dest: "uploads/" });
 
-// ✅ ConvertAPI endpoint
-const CONVERT_API_URL = "https://v2.convertapi.com/convert/pdf/to/docx";
-
-// ✅ Home route
-app.get("/", (req, res) => {
-  res.sendFile("index.html", { root: "public" });
-});
-
-// ✅ PDF → Word conversion
-app.post("/convert/pdf-to-word", upload.single("file"), async (req, res) => {
-  const file = req.file;
-  if (!file) return res.status(400).send("No file uploaded");
-
+// ✅ Convert Word → PDF
+app.post("/convert/docx-to-pdf", upload.single("file"), async (req, res) => {
   try {
-    console.log("🔄 Attempting ConvertAPI (PDF → DOCX)");
+    if (!req.file) return res.status(400).send("No file uploaded");
 
-    const formData = new FormData();
-    formData.append("File", fs.createReadStream(file.path));
-    formData.append("StoreFile", "true");
+    const filePath = req.file.path;
+    const result = await mammoth.extractRawText({ path: filePath });
 
-    const response = await fetch(CONVERT_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.CONVERT_API_KEY}`,
-      },
-      body: formData,
+    const pdfBuffer = await new Promise((resolve) => {
+      const pdfDoc = new PDFDocument();
+      const chunks = [];
+      pdfDoc.on("data", (chunk) => chunks.push(chunk));
+      pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
+
+      pdfDoc.font("Helvetica").fontSize(12).text(result.value || "Empty document");
+      pdfDoc.end();
     });
 
-    const result = await response.json();
-
-    if (result?.Files?.[0]?.Url) {
-      const downloadUrl = result.Files[0].Url;
-      console.log("✅ ConvertAPI succeeded:", downloadUrl);
-      return res.json({ downloadUrl });
-    } else {
-      console.error("⚠️ ConvertAPI failed:", result);
-      return res.status(500).send("PDF to Word conversion failed.");
-    }
-  } catch (error) {
-    console.error("❌ Conversion error:", error);
-    res.status(500).send("Error converting file");
-  } finally {
-    fs.unlink(file.path, () => {}); // Cleanup
-  }
-});
-
-// ✅ Word → PDF (local, working)
-app.post("/convert/word-to-pdf", upload.single("file"), async (req, res) => {
-  const file = req.file;
-  if (!file) return res.status(400).send("No file uploaded");
-
-  const outputFile = file.path + ".pdf";
-
-  try {
-    const { execSync } = await import("child_process");
-    execSync(`libreoffice --headless --convert-to pdf "${file.path}" --outdir uploads`);
-    const pdfBuffer = fs.readFileSync(outputFile);
-    res.setHeader("Content-Type", "application/pdf");
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=converted.pdf",
+    });
     res.send(pdfBuffer);
-  } catch (error) {
-    console.error("❌ Word→PDF error:", error);
-    res.status(500).send("Error converting Word to PDF");
-  } finally {
-    fs.unlink(file.path, () => {});
-    if (fs.existsSync(outputFile)) fs.unlink(outputFile, () => {});
+
+    fs.unlinkSync(filePath); // Cleanup uploaded file
+  } catch (err) {
+    console.error("Conversion error:", err);
+    res.status(500).send("❌ Failed to convert Word to PDF");
   }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+// ✅ Root route
+app.get("/", (req, res) => {
+  res.sendFile(path.resolve("public/index.html"));
+});
+
+app.listen(PORT, () => console.log(`✅ QuickConvert running on port ${PORT}`));
