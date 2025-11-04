@@ -1,57 +1,44 @@
-import express from "express";
-import multer from "multer";
-import cors from "cors";
-import fs from "fs";
-import path from "path";
-import { exec } from "child_process";
+const express = require("express");
+const multer = require("multer");
+const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
+const mammoth = require("mammoth");
+const PDFDocument = require("pdfkit");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors());
 app.use(express.static("public"));
 
-// Ensure folders exist
-const uploadDir = "uploads";
-const outputDir = "converted";
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+const upload = multer({ dest: "uploads/" });
 
-const upload = multer({ dest: uploadDir });
+// --- WORD (.docx) ➜ PDF ---
+app.post("/convert/docx-to-pdf", upload.single("file"), async (req, res) => {
+  try {
+    const filePath = req.file.path;
+    const outputPath = filePath + ".pdf";
 
-// Word → PDF conversion using LibreOffice
-app.post("/convert-docx-to-pdf", upload.single("file"), (req, res) => {
-  if (!req.file) return res.status(400).send("No file uploaded");
+    const result = await mammoth.extractRawText({ path: filePath });
+    const pdf = new PDFDocument();
+    const writeStream = fs.createWriteStream(outputPath);
+    pdf.pipe(writeStream);
+    pdf.font("Times-Roman").fontSize(12).text(result.value || " ", { align: "left" });
+    pdf.end();
 
-  const inputPath = path.resolve(req.file.path);
-  const outputPath = path.resolve(outputDir);
-
-  console.log(`Converting: ${inputPath}`);
-
-  // LibreOffice command
-  const command = `libreoffice --headless --convert-to pdf --outdir "${outputPath}" "${inputPath}"`;
-
-  exec(command, (error) => {
-    if (error) {
-      console.error("Conversion error:", error);
-      return res.status(500).send("Conversion failed.");
-    }
-
-    const outputFile = path.join(
-      outputPath,
-      path.basename(inputPath, ".docx") + ".pdf"
-    );
-
-    res.download(outputFile, "converted.pdf", (err) => {
-      fs.unlinkSync(inputPath);
-      fs.unlinkSync(outputFile);
+    writeStream.on("finish", () => {
+      res.download(outputPath, "converted.pdf", () => {
+        fs.unlinkSync(filePath);
+        fs.unlinkSync(outputPath);
+      });
     });
-  });
+  } catch (err) {
+    console.error("❌ Conversion error:", err);
+    res.status(500).send("Conversion failed");
+  }
 });
 
-// Serve frontend
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve("public/index.html"));
-});
-
-app.listen(PORT, () => console.log(`✅ QuickConvert running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ QuickConvert server running on port ${PORT}`)
+);
