@@ -3,51 +3,53 @@ import multer from "multer";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
-import PDFDocument from "pdfkit";
 import mammoth from "mammoth";
+import puppeteer from "puppeteer";
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.static("public"));
 
+// Multer setup for uploads
 const upload = multer({ dest: "uploads/" });
 
-// ✅ Convert Word → PDF
-app.post("/convert/docx-to-pdf", upload.single("file"), async (req, res) => {
+// Convert DOCX → PDF
+app.post("/convert-docx-to-pdf", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).send("No file uploaded");
 
-    const filePath = req.file.path;
-    const result = await mammoth.extractRawText({ path: filePath });
+    const inputPath = req.file.path;
+    const outputPath = path.join("converted", `${Date.now()}.pdf`);
 
-    const pdfBuffer = await new Promise((resolve) => {
-      const pdfDoc = new PDFDocument();
-      const chunks = [];
-      pdfDoc.on("data", (chunk) => chunks.push(chunk));
-      pdfDoc.on("end", () => resolve(Buffer.concat(chunks)));
+    // Convert DOCX → HTML using Mammoth
+    const { value: html } = await mammoth.convertToHtml({ path: inputPath });
 
-      pdfDoc.font("Helvetica").fontSize(12).text(result.value || "Empty document");
-      pdfDoc.end();
+    // Generate PDF from HTML using Puppeteer
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.pdf({ path: outputPath, format: "A4" });
+    await browser.close();
 
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=converted.pdf",
+    // Send the PDF file to client
+    res.download(outputPath, "converted.pdf", async (err) => {
+      fs.unlinkSync(inputPath);
+      fs.unlinkSync(outputPath);
     });
-    res.send(pdfBuffer);
-
-    fs.unlinkSync(filePath); // Cleanup uploaded file
-  } catch (err) {
-    console.error("Conversion error:", err);
-    res.status(500).send("❌ Failed to convert Word to PDF");
+  } catch (error) {
+    console.error("Conversion error:", error);
+    res.status(500).send("Conversion failed");
   }
 });
 
-// ✅ Root route
+// Serve main HTML
 app.get("/", (req, res) => {
   res.sendFile(path.resolve("public/index.html"));
 });
 
-app.listen(PORT, () => console.log(`✅ QuickConvert running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
