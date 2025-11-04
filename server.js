@@ -15,7 +15,6 @@ app.use(cors());
 app.use(express.static("public"));
 app.use(express.json());
 
-// Set up file uploads
 const upload = multer({ dest: "uploads/" });
 
 // Home route
@@ -28,7 +27,6 @@ app.post("/convert/docx-to-pdf", upload.single("file"), async (req, res) => {
   try {
     const docxPath = req.file.path;
     const { value: html } = await mammoth.convertToHtml({ path: docxPath });
-
     const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
     const pdfPath = path.join("uploads", `${Date.now()}.pdf`);
@@ -86,5 +84,6 @@ app.post("/convert/pdf-to-docx", upload.single("file"), async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, () => console.log(`✅ QuickConvert server running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ QuickConvert server running on port ${PORT}`)
+);
