@@ -3,80 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuickConvert - Word to PDF</title>
+  <title>QuickConvert | Word to PDF</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
-      background: #f5f7fa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      background: linear-gradient(135deg, #f3f8ff, #eaf4ff);
+      color: #222;
+      text-align: center;
+      padding: 50px;
       margin: 0;
     }
-    .container {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 90%;
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #004aad;
+    }
+    p {
+      font-size: 1.1em;
+      margin-bottom: 30px;
+    }
+    .converter {
+      display: inline-block;
+      background: white;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       max-width: 400px;
     }
-    h1 {
-      color: #333;
-      margin-bottom: 1rem;
-    }
-    input[type="file"] {
-      margin: 1rem 0;
-    }
     button {
-      background: #007bff;
+      background-color: #004aad;
       border: none;
       color: white;
-      padding: 0.7rem 1.2rem;
+      padding: 12px 20px;
+      font-size: 1em;
       border-radius: 8px;
+      margin: 10px;
       cursor: pointer;
-      font-size: 1rem;
+      transition: 0.3s;
     }
     button:hover {
-      background: #0056b3;
+      background-color: #0070f3;
     }
-    #status {
-      margin-top: 1rem;
-      font-size: 0.9rem;
+    input[type="file"] {
+      display: none;
+    }
+    label {
+      background-color: #e6f0ff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #004aad;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .file-name {
+      font-size: 0.9em;
       color: #555;
+    }
+    footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #777;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Word ➜ PDF Converter</h1>
-    <form id="convertForm">
-      <input type="file" id="fileInput" accept=".docx" required />
-      <br />
-      <button type="submit">Convert Now</button>
-    </form>
-    <div id="status"></div>
+  <h1>QuickConvert</h1>
+  <p>Free online tool to convert <strong>Word → PDF</strong> instantly, no ads, no signup.</p>
+
+  <div class="converter">
+    <div class="file-upload">
+      <input type="file" id="fileInput" class="hidden" accept=".docx" />
+      <label for="fileInput" class="upload-label">Choose File</label>
+      <p id="fileName" class="file-name">No file chosen</p>
+    </div>
+
+    <div>
+      <button id="toPdfBtn">Convert Word → PDF</button>
+    </div>
+
+    <p id="status"></p>
   </div>
 
-  <script>
-    const form = document.getElementById("convertForm");
-    const status = document.getElementById("status");
+  <footer>
+    © 2025 QuickConvert — Convert Word to PDF instantly.
+  </footer>
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const file = document.getElementById("fileInput").files[0];
-      if (!file) return alert("Please select a DOCX file");
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const fileName = document.getElementById("fileName");
+    const statusEl = document.getElementById("status");
+    const toPdfBtn = document.getElementById("toPdfBtn");
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      fileName.textContent = file ? file.name : "No file chosen";
+    });
+
+    toPdfBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      statusEl.textContent = "⏳ Converting... please wait.";
 
       const formData = new FormData();
       formData.append("file", file);
 
-      status.textContent = "⏳ Converting... Please wait.";
-
       try {
-        const response = await fetch("/convert-docx-to-pdf", {
+        const response = await fetch("/convert/docx-to-pdf", {
           method: "POST",
           body: formData,
         });
@@ -91,10 +129,10 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
-        status.textContent = "✅ Conversion complete! PDF downloaded.";
-      } catch (err) {
-        console.error(err);
-        status.textContent = "❌ Conversion failed.";
+        statusEl.textContent = "✅ Conversion complete!";
+      } catch (error) {
+        statusEl.textContent = "❌ Conversion failed. Try again.";
+        console.error(error);
       }
     });
   </script>
