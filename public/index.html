@@ -1,28 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>QuickConvert | Word to PDF & PDF to Word Converter</title>
-<meta name="description" content="Free online converter that lets you turn Word files into PDF and PDF into Word instantly — no signup required." />
-<meta name="robots" content="index, follow" />
-<link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="QuickConvert — Free online Word to PDF and PDF to Word converter. Instantly convert your files without signup or ads." />
+  <meta name="keywords" content="word to pdf, pdf to word, free online converter, docx to pdf, quickconvert" />
+  <meta name="author" content="QuickConvert" />
+  <title>QuickConvert | Free Word ↔ PDF Converter</title>
+
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #f3f8ff, #eaf4ff);
+      color: #222;
+      text-align: center;
+      padding: 50px;
+      margin: 0;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #004aad;
+    }
+    p {
+      font-size: 1.1em;
+      margin-bottom: 30px;
+    }
+    .converter {
+      display: inline-block;
+      background: white;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+    button {
+      background-color: #004aad;
+      border: none;
+      color: white;
+      padding: 12px 20px;
+      font-size: 1em;
+      border-radius: 8px;
+      margin: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #0070f3;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    label {
+      background-color: #e6f0ff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #004aad;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #777;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>QuickConvert</h1>
-    <p>Convert Word ⇆ PDF instantly — free and simple</p>
-    <form id="convertForm">
-      <input type="file" id="fileInput" required />
-      <select id="formatSelect">
-        <option value="pdf">Word → PDF</option>
-        <option value="docx">PDF → Word</option>
-      </select>
-      <button type="submit">Convert</button>
-    </form>
+  <h1>QuickConvert</h1>
+  <p>Free online tool to convert <strong>Word ↔ PDF</strong> instantly, no ads, no signup.</p>
+
+  <div class="converter">
+    <input type="file" id="fileInput" />
+    <label for="fileInput">Choose File</label>
+
+    <div>
+      <button id="toPdfBtn">Convert Word → PDF</button>
+      <button id="toWordBtn">Convert PDF → Word</button>
+    </div>
+
     <p id="status"></p>
   </div>
-  <footer>Made with ❤️ by Novacraft Studio</footer>
-  <script src="js/app.js"></script>
+
+  <footer>
+    © 2025 QuickConvert — Convert Word and PDF files instantly.
+  </footer>
+
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const statusEl = document.getElementById("status");
+
+    document.getElementById("toPdfBtn").addEventListener("click", () => handleConvert("docx-to-pdf"));
+    document.getElementById("toWordBtn").addEventListener("click", () => handleConvert("pdf-to-docx"));
+
+    async function handleConvert(type) {
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      statusEl.textContent = "⏳ Converting... please wait.";
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch(`/convert/${type}`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("Conversion failed");
+
+        // Create download link
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = type === "docx-to-pdf" ? "converted.pdf" : "converted.docx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        statusEl.textContent = "✅ Conversion complete!";
+      } catch (error) {
+        statusEl.textContent = "❌ Conversion failed. Try again.";
+        console.error(error);
+      }
+    }
+  </script>
 </body>
 </html>
