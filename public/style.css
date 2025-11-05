@@ -139,3 +139,40 @@ footer {
   font-size: 0.9rem;
   color: #777;
 }
+/* ✅ Logo size + positioning fix */
+/* ✅ Logo styling */
+.logo {
+  width: 120px;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+}
+
+/* ✨ Playful hover animation */
+.logo:hover {
+  transform: scale(1.1) rotate(3deg);
+  filter: brightness(1.1);
+}
+
+/* 📱 Mobile-friendly adjustments */
+@media (max-width: 768px) {
+  .logo {
+    width: 90px;
+    margin: 8px auto;
+  }
+}
+
+
+/* ✅ Optional: if you want it inline with text */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.header-content .logo {
+  margin: 0;
+}
