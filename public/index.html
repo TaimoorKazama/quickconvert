@@ -3,32 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- ✅ Google Site Verification -->
   <meta name="google-site-verification" content="EzmoD-Z3cNXRhjap6jBEsdpKx01gqzN9rDFfGOL3AO8" />
 
-  <!-- ✅ Essential SEO -->
-  <title>QuickConvert | Free Online Word to PDF Converter</title>
-  <meta name="description" content="Convert Word (.docx) files to PDF instantly for free. No signup, no ads — just fast, secure file conversion.">
-  <meta name="keywords" content="word to pdf, docx to pdf, free converter, online word to pdf, quickconvert, convert word to pdf free, pdf tool">
+  <title>QuickConvert | Free Word to PDF Converter Online</title>
+  <meta name="description" content="Convert Word (.docx) files to PDF instantly — 100% free, secure, and ad-free. QuickConvert lets you turn your documents into high-quality PDFs in seconds.">
+  <meta name="keywords" content="word to pdf, convert docx to pdf, free online converter, pdf tool, quickconvert, docx to pdf free">
+
   <link rel="canonical" href="https://quickconvert-mzlf.onrender.com/" />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#007bff" />
+  <meta name="theme-color" content="#007bff">
 
-  <!-- ✅ Open Graph (Facebook / LinkedIn) -->
-  <meta property="og:title" content="QuickConvert | Free Online Word to PDF Converter">
-  <meta property="og:description" content="Convert Word (.docx) to PDF instantly — no signup or ads.">
+  <!-- ✅ Open Graph -->
+  <meta property="og:title" content="QuickConvert | Free Word to PDF Converter Online">
+  <meta property="og:description" content="Convert Word (.docx) to PDF instantly — secure, fast, and ad-free. No signup required.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://quickconvert-mzlf.onrender.com/">
-  <meta property="og:image" content="https://quickconvert-mzlf.onrender.com/logo.png" />
+  <meta property="og:image" content="https://quickconvert-mzlf.onrender.com/logo.png">
 
-  <!-- ✅ Twitter Card -->
+  <!-- ✅ Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="QuickConvert | Free Word to PDF Converter">
-  <meta name="twitter:description" content="Fast, free and secure Word to PDF converter. No signup needed.">
-  <meta name="twitter:image" content="https://quickconvert-mzlf.onrender.com/logo.png" />
+  <meta name="twitter:description" content="Free, fast, and secure Word to PDF converter. No signup, no ads.">
+  <meta name="twitter:image" content="https://quickconvert-mzlf.onrender.com/logo.png">
 
-  <!-- ✅ Structured Data (Schema.org) -->
+  <!-- ✅ Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,21 +35,29 @@
     "url": "https://quickconvert-mzlf.onrender.com/",
     "applicationCategory": "UtilityApplication",
     "operatingSystem": "All",
-    "description": "QuickConvert is a free online tool to convert Word (.docx) files to PDF instantly and securely.",
+    "description": "QuickConvert is a free online tool to convert Word (.docx) files to PDF instantly.",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
-      "reviewCount": "412"
+      "reviewCount": "417"
     }
   }
   </script>
 
-  <!-- ✅ Link to CSS -->
-  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="logo.png">
 </head>
 
 <body>
-  <header>
+  <header class="site-header">
+    <div class="container header-content">
+      <img src="logo.png" alt="QuickConvert logo" class="logo">
+      <nav class="navbar">
+        <a href="#about">About</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+
     <h1>Free Online Word to PDF Converter</h1>
     <p>Convert your Word (.docx) documents into high-quality PDFs instantly — no signup, no ads, 100% free.</p>
   </header>
@@ -63,7 +69,6 @@
         <label for="fileInput" class="upload-label">Choose Word File</label>
         <p id="fileName" class="file-name">No file chosen</p>
       </div>
-
       <button id="convertBtn" class="convert-btn">Convert Word to PDF</button>
       <a id="downloadLink" class="download-link" style="display:none;">Download PDF</a>
       <p id="status" class="status"></p>
@@ -95,7 +100,6 @@
     <p>© 2025 QuickConvert | Free Online Word to PDF Converter</p>
   </footer>
 
-  <!-- ✅ Optimized Script -->
   <script>
     const fileInput = document.getElementById("fileInput");
     const fileName = document.getElementById("fileName");
@@ -122,7 +126,7 @@
       try {
         const response = await fetch("/convert/docx-to-pdf", {
           method: "POST",
-          body: formData
+          body: formData,
         });
 
         if (!response.ok) throw new Error("Conversion failed");
