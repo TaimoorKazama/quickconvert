@@ -4,32 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ✅ Google Verification -->
+  <!-- ✅ Google Site Verification -->
   <meta name="google-site-verification" content="EzmoD-Z3cNXRhjap6jBEsdpKx01gqzN9rDFfGOL3AO8" />
 
-  <!-- ✅ Basic SEO -->
+  <!-- ✅ Essential SEO -->
   <title>QuickConvert | Free Online Word to PDF Converter</title>
-  <meta name="description" content="Convert Word (.docx) files to PDF instantly for free. No signup required. Quick, secure, and mobile-friendly Word to PDF tool.">
-  <meta name="keywords" content="word to pdf, free word to pdf converter, docx to pdf, convert word document to pdf, online converter, no signup pdf converter">
-
+  <meta name="description" content="Convert Word (.docx) files to PDF instantly for free. No signup, no ads — just fast, secure file conversion.">
+  <meta name="keywords" content="word to pdf, docx to pdf, free converter, online word to pdf, quickconvert, convert word to pdf free, pdf tool">
   <link rel="canonical" href="https://quickconvert-mzlf.onrender.com/" />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#007bff">
+  <meta name="theme-color" content="#007bff" />
 
-  <!-- ✅ Open Graph -->
+  <!-- ✅ Open Graph (Facebook / LinkedIn) -->
   <meta property="og:title" content="QuickConvert | Free Online Word to PDF Converter">
-  <meta property="og:description" content="Convert Word (.docx) to PDF instantly and securely — no signup or ads.">
+  <meta property="og:description" content="Convert Word (.docx) to PDF instantly — no signup or ads.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://quickconvert-mzlf.onrender.com/">
-  <meta property="og:image" content="https://quickconvert-mzlf.onrender.com/logo.png">
+  <meta property="og:image" content="https://quickconvert-mzlf.onrender.com/logo.png" />
 
-  <!-- ✅ Twitter -->
+  <!-- ✅ Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="QuickConvert | Free Word to PDF Converter">
   <meta name="twitter:description" content="Fast, free and secure Word to PDF converter. No signup needed.">
-  <meta name="twitter:image" content="https://quickconvert-mzlf.onrender.com/logo.png">
+  <meta name="twitter:image" content="https://quickconvert-mzlf.onrender.com/logo.png" />
 
-  <!-- ✅ Structured Data -->
+  <!-- ✅ Structured Data (Schema.org) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -38,7 +37,7 @@
     "url": "https://quickconvert-mzlf.onrender.com/",
     "applicationCategory": "UtilityApplication",
     "operatingSystem": "All",
-    "description": "QuickConvert is a free online tool to convert Word (.docx) files to PDF instantly.",
+    "description": "QuickConvert is a free online tool to convert Word (.docx) files to PDF instantly and securely.",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
@@ -47,7 +46,8 @@
   }
   </script>
 
-  <link rel="stylesheet" href="style.css" />
+  <!-- ✅ Link to CSS -->
+  <link rel="stylesheet" href="/style.css" />
 </head>
 
 <body>
@@ -63,6 +63,7 @@
         <label for="fileInput" class="upload-label">Choose Word File</label>
         <p id="fileName" class="file-name">No file chosen</p>
       </div>
+
       <button id="convertBtn" class="convert-btn">Convert Word to PDF</button>
       <a id="downloadLink" class="download-link" style="display:none;">Download PDF</a>
       <p id="status" class="status"></p>
@@ -94,6 +95,7 @@
     <p>© 2025 QuickConvert | Free Online Word to PDF Converter</p>
   </footer>
 
+  <!-- ✅ Optimized Script -->
   <script>
     const fileInput = document.getElementById("fileInput");
     const fileName = document.getElementById("fileName");
@@ -120,7 +122,7 @@
       try {
         const response = await fetch("/convert/docx-to-pdf", {
           method: "POST",
-          body: formData,
+          body: formData
         });
 
         if (!response.ok) throw new Error("Conversion failed");
