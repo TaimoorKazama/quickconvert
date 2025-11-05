@@ -1,0 +1,141 @@
+/* ===== QuickConvert: Playful & Friendly Theme ===== */
+
+:root {
+  --primary: #007bff;
+  --primary-light: #66b2ff;
+  --background: #f9fafc;
+  --text: #333;
+  --border-radius: 12px;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--background);
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  max-width: 650px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.converter {
+  background: #fff;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.upload-label {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.upload-label:hover {
+  background: var(--primary-light);
+  transform: scale(1.05);
+}
+
+.file-name {
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.convert-btn {
+  background: #28a745;
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.convert-btn:hover {
+  background: #34c759;
+  transform: scale(1.05);
+}
+
+.download-link {
+  display: inline-block;
+  margin-top: 1rem;
+  background: #ff9800;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.download-link:hover {
+  background: #ffa726;
+  transform: scale(1.05);
+}
+
+.status {
+  margin-top: 0.8rem;
+  font-weight: 500;
+}
+
+section {
+  max-width: 750px;
+  margin-bottom: 2rem;
+}
+
+section h2 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  font-size: 0.9rem;
+  color: #777;
+}
