@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://quickconvert-mzlf.onrender.com/sitemap.xml
